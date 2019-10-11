@@ -1,0 +1,61 @@
+Twitter Handles
+
+Sports
+
+1. TOI Sports   -   'toisports'
+
+2. The Hindu sports   -   'TheHinduSports'
+
+3. ESPN	  -   espn (but not formatted as required)
+
+4. Firstpost sports   -   'FirstpostSports'
+
+5. Indian express sports  -   'IExpressSports' 
+
+Politics/general
+
+1. Firstpost
+
+2. TOI
+
+3. Indian express
+
+4. BBC politics
+
+5. CNN politics
+
+6. Rajneeti news
+
+Entertainment
+
+1. Etimes
+
+2. Firstpost Entertainment
+
+3. Indian express entertainment
+
+Finance/Business
+
+1. CNBC
+
+2. Bloomberg
+
+3. Wall Street Journal
+
+4. The Economist
+
+5. Reuters business news
+
+6. Financial times
+
+Space/Science
+
+1. Space.com  -  SPACEdotcom
+
+2. Reuters science news - ReutersScience  (but not formatted as required)
+
+3. LiveScience  -  LiveScience
+
+4. Universe Today - universetoday
+
+5. Sky & Telescope - SkyandTelescope
