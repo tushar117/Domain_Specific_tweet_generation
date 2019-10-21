@@ -5,6 +5,11 @@ from nltk import word_tokenize
 from nltk.translate.bleu_score import corpus_bleu
 from tqdm import tqdm
 from rouge import Rouge
+from sumy.parsers.plaintext import PlaintextParser
+from sumy.nlp.tokenizers import Tokenizer
+from sumy.summarizers.text_rank import TextRankSummarizer
+from sumy.nlp.stemmers import Stemmer
+from sumy.utils import get_stop_words
 
 def remove_urls(content):
     url_re = "http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\), ]|(?:%[0-9a-fA-F][0-9a-fA-F]))+"
@@ -48,12 +53,18 @@ def get_tweet_info(root_data_location, file_name):
     return tweet_info
 
 def analyse_news_article(root_data_location):
+    #setting up the one sentence summarizer
+    lang = 'english'
+    common_stemmer = Stemmer(lang)
+    text_rank_summarizer = TextRankSummarizer(common_stemmer)
+    text_rank_summarizer.stop_words = get_stop_words(lang)
+
     rouge = Rouge()
     for topic_folder in os.listdir(root_location):
         # for calculating the similarity between tweets and article title
         reference = []
         hypothesis = []
-
+        one_sentence_summary = []
         empty_title_count = 0
         empty_news_count = 0
         empty_article_average_length = 0
@@ -95,6 +106,11 @@ def analyse_news_article(root_data_location):
                 else:
                     average_article_length += len(article_data.split())
                     average_headline_length += len(title_data.split())
+                    #one sentence summary
+                    parser = PlaintextParser.from_string(article_data, Tokenizer(lang))
+                    article_summary = text_rank_summarizer(parser.document, 1)[0]._text
+                    one_sentence_summary.append(filter_content(article_summary))
+                    
                     reference.append(processed_tweet)
                     hypothesis.append(title_data)
                 pbar.set_description('empty title: %d | empty article: %d' % (empty_title_count, empty_news_count))
@@ -115,7 +131,9 @@ def analyse_news_article(root_data_location):
         ##bleu scores >>
         ref_token_list = [[word_tokenize(entry)] for entry in reference]
         hypo_token_list = [word_tokenize(entry) for entry in hypothesis]
+        one_sentence_summary_token_list = [word_tokenize(entry) for entry in one_sentence_summary]
         print("--"*32)
+        print("- tweets vs article title - ")
         print("individual bleu with 1-gram: %.2f" % corpus_bleu(ref_token_list, hypo_token_list, weights=(1, 0, 0, 0)))
         print("individual bleu with 2-gram: %.2f" % corpus_bleu(ref_token_list, hypo_token_list, weights=(0, 1, 0, 0)))
         print("individual bleu with 3-gram: %.2f" % corpus_bleu(ref_token_list, hypo_token_list, weights=(0, 0, 1, 0)))
@@ -123,6 +141,16 @@ def analyse_news_article(root_data_location):
         print(">> cummulative bleu score: %.2f" % corpus_bleu(ref_token_list, hypo_token_list))
         print("--"*32)
         rouge_scores = rouge.get_scores(hypothesis, reference, avg=True)
+        print("rouge :", rouge_scores)
+        print("--"*32)
+        print("- tweets vs one sentence summary of article - ")
+        print("individual bleu with 1-gram: %.2f" % corpus_bleu(ref_token_list, one_sentence_summary_token_list, weights=(1, 0, 0, 0)))
+        print("individual bleu with 2-gram: %.2f" % corpus_bleu(ref_token_list, one_sentence_summary_token_list, weights=(0, 1, 0, 0)))
+        print("individual bleu with 3-gram: %.2f" % corpus_bleu(ref_token_list, one_sentence_summary_token_list, weights=(0, 0, 1, 0)))
+        print("individual bleu with 1-gram: %.2f" % corpus_bleu(ref_token_list, one_sentence_summary_token_list, weights=(0, 0, 0, 1)))
+        print(">> cummulative bleu score: %.2f" % corpus_bleu(ref_token_list, one_sentence_summary_token_list))
+        print("--"*32)
+        rouge_scores = rouge.get_scores(one_sentence_summary, reference, avg=True)
         print("rouge :", rouge_scores)
         print("=="*32)
 
