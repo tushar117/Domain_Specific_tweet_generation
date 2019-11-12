@@ -43,7 +43,7 @@ for file in os.listdir(tweet_directory):
     tweet_file_path = "tweets" + "/" + tweet_filename
     news_file_path = "news" + "/" + news_filename
     tweet,news = get_tweet_and_news(tweet_file_path,news_file_path)
-    if((tweet is not None) and (news is not None)):
+    if((tweet is not None) and (news is not None) and len(news)>0 and len(tweet)>0):
         out_file_tweets.write(tweet + "\n")
         out_file_news.write(news + "\n")
 
